@@ -34,18 +34,21 @@ func loadApiConfig(filename string) (apiConfigData, error) {
 	return c, nil
 }
 
+func report(w http.ResponseWriter, r *http.Request) {
+	city := strings.SplitN(r.URL.Path, "/", 3)[2]
+	w.Write([]byte(r.URL.Path))
+	data, err := query(city)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	json.NewEncoder(w).Encode(data)
+}
+
 func main() {
 	http.HandleFunc("/hello", hello)
-	http.HandleFunc("/weather", func(w http.ResponseWriter, r *http.Request) {
-		city := strings.SplitN(r.URL.Path, "/", 3)[2]
-		data, err := query(city)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		json.NewEncoder(w).Encode(data)
-	})
+	http.HandleFunc("/weather", report)
 
 	http.ListenAndServe(":8080", nil)
 }
