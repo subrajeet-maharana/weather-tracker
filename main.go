@@ -36,7 +36,6 @@ func loadApiConfig(filename string) (apiConfigData, error) {
 
 func report(w http.ResponseWriter, r *http.Request) {
 	city := strings.SplitN(r.URL.Path, "/", 3)[2]
-	w.Write([]byte(r.URL.Path))
 	data, err := query(city)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -48,7 +47,7 @@ func report(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/hello", hello)
-	http.HandleFunc("/weather", report)
+	http.HandleFunc("/weather/", report)
 
 	http.ListenAndServe(":8080", nil)
 }
